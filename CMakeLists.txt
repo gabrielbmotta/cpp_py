@@ -1,5 +1,7 @@
 project(cpp_py)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 find_package(PythonLibs)
 
 add_executable(${PROJECT_NAME} main.cpp)
