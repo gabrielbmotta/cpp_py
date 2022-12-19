@@ -1,11 +1,12 @@
-project(cpp_py)
+cmake_minimum_required(VERSION 3.10)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+project(c_py_ai LANGUAGES CXX)
 
-find_package(PythonLibs)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+find_package(PythonLibs REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
-include_directories(${PYTHON_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
-
+include_directories(${PROJECT_NAME} PUBLIC ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${PYTHON_LIBRARIES})
