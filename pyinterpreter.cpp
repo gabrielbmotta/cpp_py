@@ -1,133 +1,62 @@
-#include <iostream>
-
 #include <Python.h>
-#include <deque>
-#include <stdio.h>
+#include <iostream>
 #include <string>
-#include <vector>
 
-#include <stdio.h> /* reads from keypress, doesn't echo */
-#include <termios.h>
-#include <unistd.h>
-int getch(void) {
-  struct termios oldattr, newattr;
-  int ch;
-  tcgetattr(STDIN_FILENO, &oldattr);
-  newattr = oldattr;
-  newattr.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-  ch = getchar();
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
-  return ch;
-} /* reads from keypress, echoes */
-int getche(void) {
-  struct termios oldattr, newattr;
-  int ch;
-  tcgetattr(STDIN_FILENO, &oldattr);
-  newattr = oldattr;
-  newattr.c_lflag &= ~(ICANON);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-  ch = getchar();
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
-  return ch;
+PyObject *add_func(PyObject *self, PyObject *args) {
+  int a, b;
+  if (!PyArg_ParseTuple(args, "ii", &a, &b)) {
+    return NULL;
+  }
+  return PyLong_FromLong(a + b);
+}
+
+static PyMethodDef my_module_methods[] = {
+    {"add", add_func, METH_VARARGS, "Add two integers."},
+    {NULL, NULL, 0, NULL}};
+
+static PyModuleDef my_module_def = {PyModuleDef_HEAD_INIT,
+                                    "my_module",
+                                    "An empty Python module",
+                                    -1,
+                                    my_module_methods,
+                                    NULL,
+                                    NULL,
+                                    NULL,
+                                    NULL};
+
+PyMODINIT_FUNC PyInit_my_module(void) {
+  return PyModule_Create(&my_module_def);
 }
 
 int main() {
-  std::cout << "My Simple Python Interpreter in a cpp app.\n";
+  PyImport_AppendInittab("my_module", &PyInit_my_module);
 
   Py_Initialize();
 
-  bool done = false;
-  std::deque<std::string> history;
-  while (!done) {
+  PyObject *pModule = PyImport_ImportModule("my_module");
 
-    int history_index = -1;
+  PyObject *pFunc = PyObject_GetAttrString(pModule, "add");
+  PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(1), PyLong_FromLong(2));
+  PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
 
-    std::cout << "[python] << ";
+  long result = PyLong_AsLong(pValue);
 
-    std::string input;
-    bool input_done = false;
-    // while (!input_done) {
-    //     int in = getche();
+  std::cout << "The result is: " << result << "\n";
 
-    //     if(input.size() >= 3){
-    //         if(input[input.size()-1] == 65
-    //         && input[input.size()-2] == 91
-    //         && input[input.size()-3] == 27){
-    //             std::cin.clear();
-    //                 input.clear();
-    //                 history_index++;
-    //                 std::cout << std::flush;
-    //                 std::cout << "[python] << ";
-    //                 if(history_index < history.size()){
-    //                     for(int i = history[history_index].size() - 1; i >= 0
-    //                     ; --i){
-    //                         std::cin.putback(history[history_index][i]);
-    //                     }
-    //                 }
-    //                 continue;
-    //         }
-    //     }
-    //     if(in == '\n'){
-    //         input_done = true;
-    //         continue;
-    //     }
-
-    //     input.push_back(in);
-    // }
-
-    while (!input_done) {
-      int in = getchar();
-      // std::cout << (char)in << " - " << (int)in << "\n";
-      if (in == '\n') {
-        input_done = true;
-      }
-      // else if (in == 27 ){
-      //     std::cin.ignore(1);
-      //     std::cout << "1]]]" << std::cin.peek() << "\n";
-      //     if(std::cin.peek() == 91){
-      //         std::cin.ignore(1);
-      //         std::cout << "2]]]" << std::cin.peek() << "\n";
-      //         if(std::cin.peek() == 65){
-      //             std::cin.ignore(1);
-      //             std::cout << "3]]]" << in << "\n";
-      //             std::cin.clear();
-      //             input.clear();
-      //             history_index++;
-      //             std::cout << std::flush;
-      //             std::cout << "[python] << ";
-      //             if(history_index < history.size()){
-      //                 for(int i = history[history_index].size() - 1; i >= 0 ;
-      //                 --i){
-      //                     std::cin.putback(history[history_index][i]);
-      //                 }
-      //             }
-      //         }
-      //     } else{
-      //         std::cin.putback(27);
-      //     }
-      // }
-      else {
-        input.push_back(in);
-      }
-    }
-    // std::cout << "input: " << input << "\n";
-    // for(auto character : input){
-    //     std::cout << (int)character << "\n";
-    // }
-
-    // std::getline(std::cin, input);
-    if (input == "exit" || input == "quit") {
-      done = true;
+  bool continue_loop = true;
+  while (continue_loop) {
+    std::string s;
+    std::getline(std::cin, s);
+    if (s == "quit") {
+      continue_loop = false;
     } else {
-      history.push_front(input);
-      PyRun_SimpleString(input.c_str());
+      PyRun_SimpleString(s.c_str());
+      pFunc = PyObject_GetAttrString(pModule, "add");
+      long result = PyLong_AsLong(pValue);
+      std::cout << "The result is: " << result << "\n";
     }
   }
 
-  std::cout << "Goodbye!\n";
-
   Py_Finalize();
-
   return 0;
 }
