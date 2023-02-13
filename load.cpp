@@ -3,19 +3,29 @@
 
 int main(int argc, char *argv[]) {
   Py_Initialize();
+
+  PyObject *sys = PyImport_ImportModule("sys");
+  PyObject *path = PyObject_GetAttrString(sys, "path");
+  PyList_Append(path, PyUnicode_FromString("."));
+  Py_DECREF(sys);
+  Py_DECREF(path);
+
   PyObject *pName, *pModule, *pFunc, *pArgs, *pValue;
 
   // Convert the file name to a Python string
-  pName = PyUnicode_DecodeFSDefault("main");
+  pName = PyUnicode_DecodeFSDefault("call");
 
   // Load the module object
   pModule = PyImport_Import(pName);
   Py_DECREF(pName);
 
+  // PyImport_ImportModule("call");
+
   if (pModule != NULL) {
     // Load the function from the module
     pFunc = PyObject_GetAttrString(pModule, "start");
     if (pFunc && PyCallable_Check(pFunc)) {
+      std::cout << "We found the function we were looking for.\n";
       // Prepare the arguments for the function call
       pArgs = PyTuple_New(1);
       PyTuple_SetItem(pArgs, 0, PyLong_FromLong(42));
