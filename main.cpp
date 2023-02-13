@@ -42,6 +42,27 @@ int main() {
 
   std::cout << "The result is: " << result << "\n";
 
+  PyObject *my_dict = PyDict_New();
+
+  int success = 0;
+  success += PyDict_SetItem(my_dict, PyUnicode_FromString("Value1"),
+                            PyLong_FromLong(1));
+  success += PyDict_SetItem(my_dict, PyUnicode_FromString("Value2"),
+                            PyLong_FromLong(2));
+  success += PyDict_SetItem(my_dict, PyUnicode_FromString("Value3"),
+                            PyLong_FromLong(3));
+
+  if (success == 0) {
+    PyObject *key = PyUnicode_FromString("Value2");
+    if (PyDict_Contains(my_dict, key) == 1) {
+      PyObject *value = PyDict_GetItem(my_dict, key);
+      long my_value = PyLong_AsLong(value);
+      std::cout << "The value in the dictionary is " << my_value << "\n";
+    }
+  } else {
+    std::cout << "Error while creating dictionary.";
+  }
+
   Py_Finalize();
   return 0;
 }
