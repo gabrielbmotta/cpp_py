@@ -1,4 +1,5 @@
 #include <Python.h>
+#include <cstdio>
 #include <iostream>
 
 PyObject *add_func(PyObject *self, PyObject *args) {
@@ -62,6 +63,10 @@ int main() {
   } else {
     std::cout << "Error while creating dictionary.";
   }
+
+  std::FILE *fp = fopen("main.py", "r");
+
+  PyRun_AnyFile(fp, "main.py");
 
   Py_Finalize();
   return 0;
