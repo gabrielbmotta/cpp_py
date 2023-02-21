@@ -59,14 +59,11 @@ int main() {
       PyObject *value = PyDict_GetItem(my_dict, key);
       long my_value = PyLong_AsLong(value);
       std::cout << "The value in the dictionary is " << my_value << "\n";
+      std::cout << "The value of the key is " << PyUnicode_AsUTF8(key) << "\n";
     }
   } else {
     std::cout << "Error while creating dictionary.";
   }
-
-  std::FILE *fp = fopen("main.py", "r");
-
-  PyRun_AnyFile(fp, "main.py");
 
   Py_Finalize();
   return 0;
