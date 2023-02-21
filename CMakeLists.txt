@@ -19,7 +19,8 @@ add_executable(pyint pyint/pyinterpreter.cpp)
 include_directories(pyint PUBLIC ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(pyint PUBLIC ${PYTHON_LIBRARIES})
 
-add_executable(load load.cpp)
+add_executable(load load/load.cpp)
 
 include_directories(load PUBLIC ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(load PUBLIC ${PYTHON_LIBRARIES})
+
