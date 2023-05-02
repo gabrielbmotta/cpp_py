@@ -1,5 +1,7 @@
 #include <Python.h>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 int main(int argc, char *argv[]) {
   Py_Initialize();
@@ -33,8 +35,7 @@ int main(int argc, char *argv[]) {
       // Call the function
       pValue = PyObject_CallObject(pFunc, pArgs);
       if (pValue != NULL) {
-        std::cout << "Result of the function call: " << PyLong_AsLong(pValue)
-                  << std::endl;
+        // std::cout << "Result of the function call: " << PyLong_AsLong(pValue) << std::endl;
         Py_DECREF(pValue);
       } else {
         Py_DECREF(pFunc);
@@ -42,6 +43,11 @@ int main(int argc, char *argv[]) {
         PyErr_Print();
         return 1;
       }
+      Py_BEGIN_ALLOW_THREADS
+      std::this_thread::sleep_for(std::chrono::seconds(3));
+      Py_END_ALLOW_THREADS
+      PyObject *pFuncStop = PyObject_GetAttrString(pModule, "stop");
+      PyObject_CallObject(pFuncStop, NULL);
     } else {
       if (PyErr_Occurred())
         PyErr_Print();
